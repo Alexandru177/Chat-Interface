@@ -1,17 +1,19 @@
 'use client'
 
 import { useFormState, useFormStatus } from 'react-dom'
-import { signup } from '@/app/signup/actions'
+import { authenticate } from '@/app/login/actions'
 import Link from 'next/link'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
-import { IconSpinner } from './ui/icons'
+import { IconSpinner } from '../../components/ui/icons'
 import { getMessageFromCode } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
+import { Separator } from '@/components/ui/separator'
+import { LoginButton } from '@/components/login-button'
 
-export default function SignupForm() {
+export default function LoginForm() {
   const router = useRouter()
-  const [result, dispatch] = useFormState(signup, undefined)
+  const [result, dispatch] = useFormState(authenticate, undefined)
 
   useEffect(() => {
     if (result) {
@@ -29,8 +31,8 @@ export default function SignupForm() {
       action={dispatch}
       className="flex flex-col items-center gap-4 space-y-3"
     >
-      <div className="w-full flex-1 rounded-lg border bg-white px-6 pb-4 pt-8 shadow-md md:w-96 dark:bg-zinc-950">
-        <h1 className="mb-3 text-2xl font-bold">Sign up for an account!</h1>
+      <div className="w-full flex-1 rounded-lg border bg-white px-6 pb-4 pt-8 shadow-md  md:w-96 dark:bg-zinc-950">
+        <h1 className="mb-3 text-2xl font-bold">Please log in to continue.</h1>
         <div className="w-full">
           <div>
             <label
@@ -70,18 +72,33 @@ export default function SignupForm() {
             </div>
           </div>
         </div>
-        <LoginButton />
+        <ActionButton />
+        <div className="flex items-center my-4 w-full justify-center">
+          <div className="flex-grow">
+            <Separator />
+          </div>
+          <span className="mx-2 text-xs font-medium text-zinc-400">or</span>
+          <div className="flex-grow">
+            <Separator />
+          </div>
+        </div>
+        <div className="flex justify-center space-x-2">
+          <LoginButton provider="github" className="flex-grow-0 flex-shrink" />
+          <LoginButton provider="google" className="flex-grow-0 flex-shrink" />
+        </div>
       </div>
 
-      <Link href="/login" className="flex flex-row gap-1 text-sm text-zinc-400">
-        Already have an account?
-        <div className="font-semibold underline">Log in</div>
+      <Link
+        href="/signup"
+        className="flex flex-row gap-1 text-sm text-zinc-400"
+      >
+        No account yet? <div className="font-semibold underline">Sign up</div>
       </Link>
     </form>
   )
 }
 
-function LoginButton() {
+function ActionButton() {
   const { pending } = useFormStatus()
 
   return (
@@ -89,7 +106,7 @@ function LoginButton() {
       className="my-4 flex h-10 w-full flex-row items-center justify-center rounded-md bg-zinc-900 p-2 text-sm font-semibold text-zinc-100 hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
       aria-disabled={pending}
     >
-      {pending ? <IconSpinner /> : 'Create account'}
+      {pending ? <IconSpinner /> : 'Log in'}
     </button>
   )
 }

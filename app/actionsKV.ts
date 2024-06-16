@@ -1,4 +1,5 @@
 'use server'
+//& Actions for Vercel's Key-Value Store. OLDER Implementation
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
@@ -149,7 +150,7 @@ export async function refreshHistory(path: string) {
 }
 
 export async function getMissingKeys() {
-  const keysRequired = ['OPENAI_API_KEY']
+  const keysRequired = ['API_KEY']
   return keysRequired
     .map(key => (process.env[key] ? '' : key))
     .filter(key => key !== '')

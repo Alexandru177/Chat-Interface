@@ -5,10 +5,10 @@ export type Message = CoreMessage & {
 }
 
 export interface Chat extends Record<string, any> {
+  _id?: any
   id: string
   title: string
-  createdAt: Date
-  userId: string
+  userId: any
   path: string
   messages: Message[]
   sharePath?: string
@@ -37,5 +37,6 @@ export interface User extends Record<string, any> {
   id: string
   email: string
   password: string
-  salt: string
+  image?: string
+  salt?: string
 }

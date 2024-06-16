@@ -57,10 +57,43 @@ export const runAsyncFnWithoutBlocking = (
 export const sleep = (ms: number) =>
   new Promise(resolve => setTimeout(resolve, ms))
 
-export const getStringFromBuffer = (buffer: ArrayBuffer) =>
-  Array.from(new Uint8Array(buffer))
+/**
+ * `HashSaltPass` is an asynchronous function that hashes a password using the SHA-256 algorithm.
+ * It also salts the password to add an extra layer of security.
+ *
+ * @param {string} password - The password to be hashed.
+ * @param {string} [salt] - An optional salt to be used for hashing. If not provided, a new salt is generated.
+ *
+ * @returns {Promise<{hashedPassword: string, salt: string}>} - A Promise that resolves to an object containing the hashed password and the salt used.
+ *
+ * @example
+ * // When creating a new user
+ * const { hashedPassword, salt } = await hashPass('myPassword');
+ *
+ * // When checking a user's password
+ * const { hashedPassword } = await hashPass('myPassword', 'existingSalt');
+ *
+ * @throws Will throw an error if the hashing operation fails.
+ */
+export async function HashSaltPass(password: string, salt?: string) {
+  // Generate a new salt if one wasn't provided
+  if (!salt) {
+    salt = crypto.randomUUID()
+  }
+
+  const encoder = new TextEncoder()
+  const saltedPassword = encoder.encode(password + salt)
+  const hashedPasswordBuffer = await crypto.subtle.digest(
+    'SHA-256',
+    saltedPassword
+  )
+
+  const hashedPassword = Array.from(new Uint8Array(hashedPasswordBuffer))
     .map(b => b.toString(16).padStart(2, '0'))
     .join('')
+
+  return { hashedPassword, salt }
+}
 
 export enum ResultCode {
   InvalidCredentials = 'INVALID_CREDENTIALS',

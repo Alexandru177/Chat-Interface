@@ -1,6 +1,8 @@
+'use client'
+
 import * as React from 'react'
 
-import { shareChat } from '@/app/actions'
+import { shareChat } from '@/app/actionsMongo'
 import { Button } from '@/components/ui/button'
 import { PromptForm } from '@/components/prompt-form'
 import { ButtonScrollToBottom } from '@/components/button-scroll-to-bottom'

@@ -15,6 +15,7 @@ import { SidebarMobile } from './sidebar-mobile'
 import { SidebarToggle } from './sidebar-toggle'
 import { ChatHistory } from './chat-history'
 import { Session } from '@/lib/types'
+import { ThemeToggle } from './theme-toggle'
 
 async function UserOrLogin() {
   const session = (await auth()) as Session
@@ -26,6 +27,7 @@ async function UserOrLogin() {
             <ChatHistory userId={session.user.id} />
           </SidebarMobile>
           <SidebarToggle />
+          <span className="hidden ml-2 md:flex">{session.user.id}</span>
         </>
       ) : (
         <Link href="/new" rel="nofollow">
@@ -56,6 +58,7 @@ export function Header() {
         </React.Suspense>
       </div>
       <div className="flex items-center justify-end space-x-2">
+        <ThemeToggle />
         <a
           target="_blank"
           href="https://github.com/vercel/nextjs-ai-chatbot/"
@@ -64,15 +67,6 @@ export function Header() {
         >
           <IconGitHub />
           <span className="hidden ml-2 md:flex">GitHub</span>
-        </a>
-        <a
-          href="https://vercel.com/templates/Next.js/nextjs-ai-chatbot"
-          target="_blank"
-          className={cn(buttonVariants())}
-        >
-          <IconVercel className="mr-2" />
-          <span className="hidden sm:block">Deploy to Vercel</span>
-          <span className="sm:hidden">Deploy</span>
         </a>
       </div>
     </header>

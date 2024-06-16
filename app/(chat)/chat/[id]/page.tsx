@@ -2,10 +2,10 @@ import { type Metadata } from 'next'
 import { notFound, redirect } from 'next/navigation'
 
 import { auth } from '@/auth'
-import { getChat, getMissingKeys } from '@/app/actions'
+import { getChat, getMissingKeys } from '@/app/actionsMongo'
 import { Chat } from '@/components/chat'
 import { AI } from '@/lib/chat/actions'
-import { Session } from '@/lib/types'
+import { Session, Message } from '@/lib/types'
 
 export interface ChatPageProps {
   params: {
@@ -22,7 +22,7 @@ export async function generateMetadata({
     return {}
   }
 
-  const chat = await getChat(params.id, session.user.id)
+  const chat = await getChat(params.id, session.user.id!)
   return {
     title: chat?.title.toString().slice(0, 50) ?? 'Chat'
   }
@@ -43,16 +43,23 @@ export default async function ChatPage({ params }: ChatPageProps) {
     redirect('/')
   }
 
-  if (chat?.userId !== session?.user?.id) {
+  if (chat?.userId != session?.user?.id) {
     notFound()
   }
 
+  /*@ts-ignore*/
+  const messages: Message[] = chat.messages.map(message => ({
+    id: message.id,
+    role: message.role,
+    content: message.content
+  }))
+
   return (
-    <AI initialAIState={{ chatId: chat.id, messages: chat.messages }}>
+    <AI initialAIState={{ chatId: chat.id, messages: messages }}>
       <Chat
         id={chat.id}
         session={session}
-        initialMessages={chat.messages}
+        initialMessages={messages}
         missingKeys={missingKeys}
       />
     </AI>

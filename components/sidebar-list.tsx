@@ -1,7 +1,9 @@
-import { clearChats, getChats } from '@/app/actions'
+import { clearChats, getChats } from '@/app/actionsMongo'
 import { ClearHistory } from '@/components/clear-history'
 import { SidebarItems } from '@/components/sidebar-items'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { Chat } from '@/lib/types'
+import { m } from 'framer-motion'
 import { cache } from 'react'
 
 interface SidebarListProps {
@@ -10,7 +12,22 @@ interface SidebarListProps {
 }
 
 const loadChats = cache(async (userId?: string) => {
-  return await getChats(userId)
+  const chats: Chat[] = await getChats(userId)
+
+  return chats.map(chat => ({
+    id: chat.id,
+    title: chat.title,
+    path: chat.path,
+    messages: chat.messages.map(message => ({
+      id: message.id,
+      role: message.role,
+      content: message.content
+    })),
+    createdAt: chat.createdAt,
+    updatedAt: chat.updatedAt,
+    _id: chat._id.toString(),
+    userId: chat.userId.toString()
+  }))
 })
 
 export async function SidebarList({ userId }: SidebarListProps) {
@@ -21,6 +38,7 @@ export async function SidebarList({ userId }: SidebarListProps) {
       <div className="flex-1 overflow-auto">
         {chats?.length ? (
           <div className="space-y-2 px-2">
+            {/* @ts-ignore */}
             <SidebarItems chats={chats} />
           </div>
         ) : (
