@@ -5,11 +5,11 @@ import { authenticate } from '@/app/login/actions'
 import Link from 'next/link'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
-import { IconSpinner } from '../../components/ui/icons'
+import { IconSpinner } from '@/components/ui/icons'
 import { getMessageFromCode } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 import { Separator } from '@/components/ui/separator'
-import { LoginButton } from '@/components/login-button'
+import { LoginButton } from './login-button'
 
 export default function LoginForm() {
   const router = useRouter()

@@ -10,29 +10,12 @@ import {
 } from 'ai/rsc'
 import { createOpenAI } from '@ai-sdk/openai'
 
-import {
-  spinner,
-  BotCard,
-  BotMessage,
-  SystemMessage,
-  Stock,
-  Purchase
-} from '@/components/stocks'
+import { BotCard, BotMessage, SystemMessage } from '@/components/utils'
 
 import { z } from 'zod'
-import { EventsSkeleton } from '@/components/stocks/events-skeleton'
-import { Events } from '@/components/stocks/events'
-import { StocksSkeleton } from '@/components/stocks/stocks-skeleton'
-import { Stocks } from '@/components/stocks/stocks'
-import { StockSkeleton } from '@/components/stocks/stock-skeleton'
-import {
-  formatNumber,
-  runAsyncFnWithoutBlocking,
-  sleep,
-  nanoid
-} from '@/lib/utils'
+import { nanoid } from '@/lib/utils'
 import { saveChat } from '@/app/actionsMongo'
-import { SpinnerMessage, UserMessage } from '@/components/stocks/message'
+import { SpinnerMessage, UserMessage } from '@/components/utils/message'
 import { Chat, Message } from '@/lib/types'
 import { auth } from '@/auth'
 import { ObjectId } from 'mongodb'
@@ -182,7 +165,7 @@ export const getUIStateFromAIState = (aiState: Chat) => {
           <UserMessage>{message.content as string}</UserMessage>
         ) : message.role === 'assistant' &&
           typeof message.content === 'string' ? (
-          <BotMessage content={message.content} />
+          <BotMessage message={message} /*content={message.content}*/ />
         ) : null
     }))
 }

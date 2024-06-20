@@ -4,11 +4,13 @@ import { IconOpenAI, IconUser } from '@/components/ui/icons'
 import { cn } from '@/lib/utils'
 import { spinner } from './spinner'
 import { CodeBlock } from '../ui/codeblock'
-import { MemoizedReactMarkdown } from '../markdown'
+import { MemoizedReactMarkdown } from '../ui/markdown'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 import { StreamableValue, useStreamableValue } from 'ai/rsc'
 import { useStreamableText } from '@/lib/hooks/use-streamable-text'
+import { Message } from 'lib/types'
+import { ChatMessageActions } from './message-actions'
 
 // Different types of message bubbles.
 
@@ -26,13 +28,14 @@ export function UserMessage({ children }: { children: React.ReactNode }) {
 }
 
 export function BotMessage({
-  content,
+  message,
   className
 }: {
-  content: string | StreamableValue<string>
+  // content: string | StreamableValue<string>
+  message: Message
   className?: string
 }) {
-  const text = useStreamableText(content)
+  const text = useStreamableText(message.content as StreamableValue)
 
   return (
     <div className={cn('group relative flex items-start md:-ml-12', className)}>
@@ -81,6 +84,7 @@ export function BotMessage({
         >
           {text}
         </MemoizedReactMarkdown>
+        <ChatMessageActions message={message} />
       </div>
     </div>
   )

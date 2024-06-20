@@ -4,15 +4,15 @@ import * as React from 'react'
 
 import { shareChat } from '@/app/actionsMongo'
 import { Button } from '@/components/ui/button'
-import { PromptForm } from '@/components/prompt-form'
-import { ButtonScrollToBottom } from '@/components/button-scroll-to-bottom'
+import { PromptForm } from '@/components/(chat)/chat-prompt'
+import { ButtonScrollToBottom } from '@/components/(chat)/button-scroll-to-bottom'
 import { IconShare } from '@/components/ui/icons'
-import { FooterText } from '@/components/footer'
-import { ChatShareDialog } from '@/components/chat-share-dialog'
+import { FooterText } from '@/components/(chat)/chat-footer'
+import { ChatShareDialog } from '@/components/(chat)/chat-share-dialog'
 import { useAIState, useActions, useUIState } from 'ai/rsc'
 import type { AI } from '@/lib/chat/actions'
 import { nanoid } from 'nanoid'
-import { UserMessage } from './stocks/message'
+import { UserMessage } from '../utils/message'
 
 export interface ChatPanelProps {
   id?: string

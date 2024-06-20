@@ -11,11 +11,11 @@ import {
   IconVercel
 } from '@/components/ui/icons'
 import { UserMenu } from '@/components/user-menu'
-import { SidebarMobile } from './sidebar-mobile'
-import { SidebarToggle } from './sidebar-toggle'
-import { ChatHistory } from './chat-history'
+import { SidebarMobile } from './(sidebar)/sidebar-mobile'
+import { SidebarToggle } from './(sidebar)/sidebar'
+import { History } from './(sidebar)/sidebar-history'
 import { Session } from '@/lib/types'
-import { ThemeToggle } from './theme-toggle'
+import { ThemeToggle } from './ui/theme-toggle'
 
 async function UserOrLogin() {
   const session = (await auth()) as Session
@@ -24,7 +24,7 @@ async function UserOrLogin() {
       {session?.user ? (
         <>
           <SidebarMobile>
-            <ChatHistory userId={session.user.id} />
+            <History userId={session.user.id} />
           </SidebarMobile>
           <SidebarToggle />
           <span className="hidden ml-2 md:flex">{session.user.id}</span>
