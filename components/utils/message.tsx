@@ -1,27 +1,49 @@
 'use client'
 
-import { IconOpenAI, IconUser } from '@/components/ui/icons'
+import { IconEdit, IconOpenAI, IconUser } from '@/components/ui/icons'
 import { cn } from '@/lib/utils'
 import { spinner } from './spinner'
-import { CodeBlock } from '../ui/codeblock'
 import { MemoizedReactMarkdown } from '../ui/markdown'
-import remarkGfm from 'remark-gfm'
-import remarkMath from 'remark-math'
-import { StreamableValue, useStreamableValue } from 'ai/rsc'
+import { Button } from '../ui/button'
+import type { StreamableValue } from 'ai/rsc'
+import type { NaturalMessage } from 'lib/types'
 import { useStreamableText } from '@/lib/hooks/use-streamable-text'
-import { Message } from 'lib/types'
-import { ChatMessageActions } from './message-actions'
+import { Copy, Delete, Edit } from './message-actions'
+import { useState } from 'react'
 
-// Different types of message bubbles.
+export function UserMessage({
+  message,
+  className
+}: {
+  message: NaturalMessage
+  className?: string
+}) {
+  const [isEditing, setIsEditing] = useState(false)
 
-export function UserMessage({ children }: { children: React.ReactNode }) {
   return (
-    <div className="group relative flex items-start md:-ml-12">
+    <div className={cn('group relative flex items-start md:-ml-12', className)}>
       <div className="flex size-[25px] shrink-0 select-none items-center justify-center rounded-md border bg-background shadow-sm">
         <IconUser />
       </div>
-      <div className="ml-4 flex-1 space-y-2 overflow-hidden pl-2">
-        {children}
+      <div className="ml-4 w-full space-y-2 overflow-hidden pl-2">
+        {isEditing && 'id' in message ? (
+          <Edit message={message} setIsEditing={setIsEditing} />
+        ) : (
+          (message.content as string)
+        )}
+
+        <div className="flex absolute bottom-0 right-0 transition-opacity group-hover:opacity-100 md:opacity-0">
+          <Copy content={message.content as string} />
+          <Button
+            onClick={() => setIsEditing(!isEditing)}
+            variant="ghost"
+            size="icon"
+          >
+            <IconEdit />
+            <span className="sr-only">Edit message</span>
+          </Button>
+          <Delete messageId={message.id} />
+        </div>
       </div>
     </div>
   )
@@ -31,60 +53,41 @@ export function BotMessage({
   message,
   className
 }: {
-  // content: string | StreamableValue<string>
-  message: Message
+  message: NaturalMessage & { content: StreamableValue<string> }
   className?: string
 }) {
-  const text = useStreamableText(message.content as StreamableValue)
+  const [text, setText] = useStreamableText(message.content)
+  const [isEditing, setIsEditing] = useState(false)
 
   return (
     <div className={cn('group relative flex items-start md:-ml-12', className)}>
       <div className="flex size-[24px] shrink-0 select-none items-center justify-center rounded-md border bg-primary text-primary-foreground shadow-sm">
         <IconOpenAI />
       </div>
-      <div className="ml-4 flex-1 space-y-2 overflow-hidden px-1">
-        <MemoizedReactMarkdown
-          className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
-          remarkPlugins={[remarkGfm, remarkMath]}
-          components={{
-            p({ children }) {
-              return <p className="mb-2 last:mb-0">{children}</p>
-            },
-            code({ node, inline, className, children, ...props }) {
-              if (children.length) {
-                if (children[0] == '▍') {
-                  return (
-                    <span className="mt-1 animate-pulse cursor-default">▍</span>
-                  )
-                }
-
-                children[0] = (children[0] as string).replace('`▍`', '▍')
-              }
-
-              const match = /language-(\w+)/.exec(className || '')
-
-              if (inline) {
-                return (
-                  <code className={className} {...props}>
-                    {children}
-                  </code>
-                )
-              }
-
-              return (
-                <CodeBlock
-                  key={Math.random()}
-                  language={(match && match[1]) || ''}
-                  value={String(children).replace(/\n$/, '')}
-                  {...props}
-                />
-              )
-            }
-          }}
-        >
-          {text}
-        </MemoizedReactMarkdown>
-        <ChatMessageActions message={message} />
+      <div className="ml-4 w-full space-y-2 overflow-hidden px-1">
+        {isEditing ? (
+          <Edit
+            message={{ ...message, content: text }}
+            setIsEditing={setIsEditing}
+            setText={setText}
+          />
+        ) : (
+          <MemoizedReactMarkdown className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0">
+            {text}
+          </MemoizedReactMarkdown>
+        )}
+        <div className="flex absolute bottom-0 right-0 transition-opacity group-hover:opacity-100 md:opacity-0">
+          <Copy content={text} />
+          <Button
+            onClick={() => setIsEditing(!isEditing)}
+            variant="ghost"
+            size="icon"
+          >
+            <IconEdit />
+            <span className="sr-only">Edit message</span>
+          </Button>
+          <Delete messageId={message.id} />
+        </div>
       </div>
     </div>
   )

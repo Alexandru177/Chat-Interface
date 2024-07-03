@@ -2,7 +2,6 @@ import 'server-only'
 
 import {
   createAI,
-  createStreamableUI,
   getMutableAIState,
   getAIState,
   streamUI,
@@ -10,22 +9,38 @@ import {
 } from 'ai/rsc'
 import { createOpenAI } from '@ai-sdk/openai'
 
-import { BotCard, BotMessage, SystemMessage } from '@/components/utils'
+import {
+  UserMessage,
+  BotMessage,
+  SystemMessage,
+  SpinnerMessage
+} from '@/components/utils'
 
 import { z } from 'zod'
 import { nanoid } from '@/lib/utils'
-import { saveChat } from '@/app/actionsMongo'
-import { SpinnerMessage, UserMessage } from '@/components/utils/message'
-import { Chat, Message } from '@/lib/types'
+import { Chat, Message, NaturalMessage } from '@/lib/types'
 import { auth } from '@/auth'
-import { ObjectId } from 'mongodb'
+import { saveChat } from '@/app/actionsMongo'
 
 const lmstudio = createOpenAI({
   apiKey: process.env.API_KEY ?? '',
   baseURL: 'http://localhost:1234/v1'
 })
 
-async function submitUserMessage(content: string) {
+export type AIState = {
+  chatId: string
+  messages: Message[]
+}
+
+export type UIState = {
+  id: string
+  display: React.ReactNode
+} // as singular
+
+async function submitUserMessage(
+  content: string,
+  messageId: string
+): Promise<UIState> {
   'use server'
 
   const aiState = getMutableAIState<typeof AI>()
@@ -35,15 +50,16 @@ async function submitUserMessage(content: string) {
     messages: [
       ...aiState.get().messages,
       {
-        id: nanoid(),
+        id: messageId,
         role: 'user',
         content
       }
     ]
   })
 
-  let textStream: undefined | ReturnType<typeof createStreamableValue<string>>
+  let textStream: ReturnType<typeof createStreamableValue<string>>
   let textNode: undefined | React.ReactNode
+  let newId = nanoid()
 
   const result = await streamUI({
     model: lmstudio('gpt-3.5-turbo'),
@@ -52,14 +68,23 @@ async function submitUserMessage(content: string) {
     messages: [
       ...aiState.get().messages.map((message: any) => ({
         role: message.role,
-        content: message.content,
-        name: message.name
+        content: message.content
       }))
     ],
     text: ({ content, done, delta }) => {
       if (!textStream) {
         textStream = createStreamableValue('')
-        textNode = <BotMessage content={textStream.value} />
+        textNode = (
+          <BotMessage
+            message={
+              {
+                id: newId,
+                role: 'assistant',
+                content: textStream.value
+              } as NaturalMessage
+            }
+          />
+        )
       }
 
       if (done) {
@@ -69,7 +94,7 @@ async function submitUserMessage(content: string) {
           messages: [
             ...aiState.get().messages,
             {
-              id: nanoid(),
+              id: newId,
               role: 'assistant',
               content
             }
@@ -84,24 +109,51 @@ async function submitUserMessage(content: string) {
   })
 
   return {
-    id: nanoid(),
+    id: newId,
     display: result.value
   }
 }
 
-export type AIState = {
-  chatId: string
-  messages: Message[]
+async function editUserMessage(
+  content: string,
+  messageId: string
+): Promise<void> {
+  'use server'
+  const aiState = getMutableAIState<typeof AI>()
+
+  const updatedMessages = aiState.get().messages.map((message: Message) => {
+    if (message.id === messageId) {
+      return { ...message, content } as Message
+    }
+    return message
+  })
+
+  aiState.done({
+    ...aiState.get(),
+    messages: updatedMessages
+  })
 }
 
-export type UIState = {
-  id: string
-  display: React.ReactNode
-}[]
+async function deleteUserMessage(messageId: string): Promise<void> {
+  'use server'
+  const aiState = getMutableAIState<typeof AI>()
 
-export const AI = createAI<AIState, UIState>({
+  const updatedMessages = aiState
+    .get()
+    .messages.filter((message: Message) => message.id !== messageId)
+
+  aiState.done({
+    ...aiState.get(),
+    messages: updatedMessages
+  })
+}
+
+//* Context
+export const AI = createAI<AIState, UIState[]>({
   actions: {
-    submitUserMessage
+    submitUserMessage,
+    editUserMessage,
+    deleteUserMessage
   },
   initialUIState: [],
   initialAIState: { chatId: nanoid(), messages: [] },
@@ -149,23 +201,23 @@ export const AI = createAI<AIState, UIState>({
   }
 })
 
-export const getUIStateFromAIState = (aiState: Chat) => {
+export const getUIStateFromAIState = (aiState: Readonly<Chat>) => {
   return aiState.messages
     .filter(message => message.role !== 'system')
-    .map((message, index) => ({
-      id: `${aiState.chatId}-${index}`,
+    .map(message => ({
+      id: message.id,
       display:
         message.role === 'tool' ? (
           message.content.map(tool => {
             return (
-              <UserMessage>Tool: {JSON.stringify(tool.result)} </UserMessage>
+              <SystemMessage>Tool: {JSON.stringify(tool.result)}</SystemMessage>
             )
           })
         ) : message.role === 'user' ? (
-          <UserMessage>{message.content as string}</UserMessage>
+          <UserMessage message={message} />
         ) : message.role === 'assistant' &&
           typeof message.content === 'string' ? (
-          <BotMessage message={message} /*content={message.content}*/ />
+          <BotMessage message={{ ...message, content: message.content }} />
         ) : null
     }))
 }

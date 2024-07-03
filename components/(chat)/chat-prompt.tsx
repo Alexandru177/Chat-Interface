@@ -15,7 +15,7 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip'
 import { useEnterSubmit } from '@/lib/hooks/use-enter-submit'
-import { nanoid } from 'nanoid'
+import { nanoid } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 
 export function PromptForm({
@@ -30,12 +30,6 @@ export function PromptForm({
   const inputRef = React.useRef<HTMLTextAreaElement>(null)
   const { submitUserMessage } = useActions()
   const [_, setMessages] = useUIState<typeof AI>()
-
-  React.useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus()
-    }
-  }, [])
 
   return (
     <form
@@ -53,16 +47,21 @@ export function PromptForm({
         if (!value) return
 
         // Optimistically add user message UI
+        const messageId = nanoid()
         setMessages(currentMessages => [
           ...currentMessages,
           {
-            id: nanoid(),
-            display: <UserMessage>{value}</UserMessage>
+            id: messageId,
+            display: (
+              <UserMessage
+                message={{ id: messageId, role: 'user', content: value }}
+              />
+            )
           }
         ])
 
         // Submit and get response message
-        const responseMessage = await submitUserMessage(value)
+        const responseMessage = await submitUserMessage(value, messageId)
         setMessages(currentMessages => [...currentMessages, responseMessage])
       }}
     >
@@ -87,7 +86,7 @@ export function PromptForm({
           ref={inputRef}
           tabIndex={0}
           onKeyDown={onKeyDown}
-          placeholder="Send a message."
+          placeholder="Send a message..."
           className="min-h-[60px] w-full resize-none bg-transparent px-4 py-[1.3rem] focus-within:outline-none sm:text-sm"
           autoFocus
           spellCheck={false}

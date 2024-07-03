@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons'
 
 export interface ChatList {
-  messages: UIState
+  messages: UIState[]
   session?: Session
   isShared: boolean
 }
@@ -43,6 +43,7 @@ export function ChatList({ messages, session, isShared }: ChatList) {
 
       {messages.map((message, index) => (
         <div key={message.id}>
+          {message.id} {/* Temp display */}
           {message.display}
           {index < messages.length - 1 && <Separator className="my-4" />}
         </div>

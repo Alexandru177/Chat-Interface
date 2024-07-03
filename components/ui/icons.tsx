@@ -493,7 +493,6 @@ function IconChevronUpDown({
 }
 
 export {
-  IconEdit,
   IconNextChat,
   IconOpenAI,
   IconVercel,
@@ -516,6 +515,7 @@ export {
   IconCopy,
   IconCheck,
   IconDownload,
+  IconEdit,
   IconClose,
   IconShare,
   IconUsers,

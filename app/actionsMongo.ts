@@ -15,7 +15,6 @@ connectToDB()
 
 //* Create
 export async function saveChat(chat: Chat) {
-  connectToDB()
   const session = await auth()
 
   if (session && session.user) {

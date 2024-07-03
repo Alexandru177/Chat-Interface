@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 
 export const useStreamableText = (
   content: string | StreamableValue<string>
-) => {
+): [string, React.Dispatch<React.SetStateAction<string>>] => {
   const [rawContent, setRawContent] = useState(
     typeof content === 'string' ? content : ''
   )
@@ -21,5 +21,5 @@ export const useStreamableText = (
     })()
   }, [content])
 
-  return rawContent
+  return [rawContent, setRawContent]
 }

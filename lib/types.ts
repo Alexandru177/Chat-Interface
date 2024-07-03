@@ -1,6 +1,20 @@
-import { CoreMessage } from 'ai'
+import {
+  CoreMessage,
+  CoreUserMessage,
+  CoreAssistantMessage,
+  CoreSystemMessage
+} from 'ai'
 
 export type Message = CoreMessage & {
+  id: string
+}
+
+//Message between user and assistant. Excludes tool calls
+export type NaturalMessage = (
+  | CoreUserMessage
+  | CoreAssistantMessage
+  | CoreSystemMessage
+) & {
   id: string
 }
 
