@@ -20,7 +20,7 @@ import { z } from 'zod'
 import { nanoid } from '@/lib/utils'
 import { Chat, Message, NaturalMessage } from '@/lib/types'
 import { auth } from '@/auth'
-import { saveChat } from '@/app/actionsMongo'
+import { saveChat } from '@/lib/db/actions.mongo'
 
 const lmstudio = createOpenAI({
   apiKey: process.env.API_KEY ?? '',
@@ -181,7 +181,6 @@ export const AI = createAI<AIState, UIState[]>({
       const { chatId, messages } = state
 
       const userId = session.user.id
-      const path = `/chat/${chatId}`
 
       const firstMessageContent = messages[0].content as string
       const title = firstMessageContent.substring(0, 100)
@@ -190,8 +189,7 @@ export const AI = createAI<AIState, UIState[]>({
         id: chatId,
         title,
         userId,
-        messages,
-        path
+        messages
       }
 
       await saveChat(chat)

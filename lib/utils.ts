@@ -33,14 +33,12 @@ export async function fetcher<JSON = any>(
   return res.json()
 }
 
-export function formatDate(input: string | number | Date): string {
-  const date = new Date(input)
-  return date.toLocaleDateString('en-US', {
+export const formatDate = (value: string | number | Date) =>
+  new Date(value).toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
     year: 'numeric'
   })
-}
 
 export const formatNumber = (value: number) =>
   new Intl.NumberFormat('en-US', {

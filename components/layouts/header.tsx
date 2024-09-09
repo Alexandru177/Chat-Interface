@@ -3,6 +3,7 @@ import Link from 'next/link'
 
 import { cn } from '@/lib/utils'
 import { auth } from '@/auth'
+import { Session } from '@/lib/types'
 import { Button, buttonVariants } from '@/components/ui/button'
 import {
   IconGitHub,
@@ -11,11 +12,14 @@ import {
   IconVercel
 } from '@/components/ui/icons'
 import { UserMenu } from '@/components/user-menu'
-import { SidebarMobile } from './(sidebar)/sidebar-mobile'
-import { SidebarToggle } from './(sidebar)/sidebar'
-import { History } from './(sidebar)/sidebar-history'
-import { Session } from '@/lib/types'
-import { ThemeToggle } from './ui/theme-toggle'
+import {
+  Sidebar,
+  SidebarDesktop,
+  SidebarMobile,
+  SidebarToggle
+} from '@/components/(sidebar)/sidebar'
+import { History } from '@/components/(sidebar)/sidebar-history'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 async function UserOrLogin() {
   const session = (await auth()) as Session
@@ -27,7 +31,6 @@ async function UserOrLogin() {
             <History userId={session.user.id} />
           </SidebarMobile>
           <SidebarToggle />
-          <span className="hidden ml-2 md:flex">{session.user.id}</span>
         </>
       ) : (
         <Link href="/new" rel="nofollow">

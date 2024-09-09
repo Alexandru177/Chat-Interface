@@ -2,7 +2,7 @@ import { type Metadata } from 'next'
 import { notFound, redirect } from 'next/navigation'
 
 import { auth } from '@/auth'
-import { getChat, getMissingKeys } from '@/app/actionsMongo'
+import { getChat, getMissingKeys } from '@/lib/db/actions.mongo'
 import { Chat } from '@/components/(chat)/chat'
 import { AI } from '@/lib/chat/actions'
 import { Session, Message } from '@/lib/types'
@@ -39,27 +39,14 @@ export default async function ChatPage({ params }: ChatPageProps) {
   const userId = session.user.id as string
   const chat = await getChat(params.id, userId)
 
-  if (!chat) {
-    redirect('/')
-  }
-
-  if (chat?.userId != session?.user?.id) {
-    notFound()
-  }
-
-  /*@ts-ignore*/
-  const messages: Message[] = chat.messages.map(message => ({
-    id: message.id,
-    role: message.role,
-    content: message.content
-  }))
+  if (!chat) redirect('/')
 
   return (
-    <AI initialAIState={{ chatId: chat.id, messages: messages }}>
+    <AI initialAIState={{ chatId: chat.id, messages: chat.messages }}>
       <Chat
         id={chat.id}
         session={session}
-        initialMessages={messages}
+        initialMessages={chat.messages}
         missingKeys={missingKeys}
       />
     </AI>

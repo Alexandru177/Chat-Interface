@@ -27,7 +27,7 @@ interface SidebarItemProps {
 export function SidebarItem({ index, chat, children }: SidebarItemProps) {
   const pathname = usePathname()
 
-  const isActive = pathname === chat.path
+  const isActive = pathname === `/chat/${chat.id}`
   const [newChatId, setNewChatId] = useLocalStorage('newChatId', null)
   const shouldAnimate = index === 0 && isActive && newChatId
 
@@ -35,7 +35,7 @@ export function SidebarItem({ index, chat, children }: SidebarItemProps) {
 
   return (
     <motion.div
-      className="relative h-8"
+      className="group/item relative h-10"
       variants={{
         initial: {
           height: 0,
@@ -46,20 +46,17 @@ export function SidebarItem({ index, chat, children }: SidebarItemProps) {
           opacity: 1
         }
       }}
-      initial={shouldAnimate ? 'initial' : undefined}
-      animate={shouldAnimate ? 'animate' : undefined}
+      initial={shouldAnimate ? 'initial' : false}
+      animate={shouldAnimate ? 'animate' : false}
       transition={{
-        duration: 0.25,
+        duration: 0.5,
         ease: 'easeIn'
       }}
     >
       <div className="absolute left-2 top-1 flex size-6 items-center justify-center">
         {chat.sharePath ? (
           <Tooltip delayDuration={1000}>
-            <TooltipTrigger
-              tabIndex={-1}
-              className="focus:bg-muted focus:ring-1 focus:ring-ring"
-            >
+            <TooltipTrigger tabIndex={-1}>
               <IconUsers className="mr-2 mt-1 text-zinc-500" />
             </TooltipTrigger>
             <TooltipContent>This is a shared chat.</TooltipContent>
@@ -69,11 +66,11 @@ export function SidebarItem({ index, chat, children }: SidebarItemProps) {
         )}
       </div>
       <Link
-        href={chat.path}
+        href={`/chat/${chat.id}`}
         className={cn(
           buttonVariants({ variant: 'ghost' }),
-          'group w-full px-8 transition-colors hover:bg-zinc-200/40 dark:hover:bg-zinc-300/10',
-          isActive && 'bg-zinc-200 pr-16 font-semibold dark:bg-zinc-800'
+          'group w-full px-8 transition-colors duration-200',
+          isActive && ' pr-16 font-semibold bg-zinc-200 dark:bg-zinc-700'
         )}
       >
         <div
@@ -81,7 +78,7 @@ export function SidebarItem({ index, chat, children }: SidebarItemProps) {
           title={chat.title}
         >
           <span className="whitespace-nowrap">
-            {shouldAnimate ? (
+            {isActive ? (
               chat.title.split('').map((character, index) => (
                 <motion.span
                   key={index}
@@ -95,8 +92,8 @@ export function SidebarItem({ index, chat, children }: SidebarItemProps) {
                       x: 0
                     }
                   }}
-                  initial={shouldAnimate ? 'initial' : undefined}
-                  animate={shouldAnimate ? 'animate' : undefined}
+                  initial={isActive ? 'initial' : undefined}
+                  animate={isActive ? 'animate' : undefined}
                   transition={{
                     duration: 0.25,
                     ease: 'easeIn',
@@ -118,7 +115,11 @@ export function SidebarItem({ index, chat, children }: SidebarItemProps) {
           </span>
         </div>
       </Link>
-      {isActive && <div className="absolute right-2 top-1">{children}</div>}
+      <div
+        className={`absolute right-2 top-1 transition-opacity duration-300 ${isActive || 'opacity-0 group-hover/item:opacity-100'}`}
+      >
+        {children}
+      </div>
     </motion.div>
   )
 }

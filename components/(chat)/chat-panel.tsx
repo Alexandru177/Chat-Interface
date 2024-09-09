@@ -2,13 +2,12 @@
 
 import * as React from 'react'
 
-import { shareChat } from '@/app/actionsMongo'
+import { shareChat } from '@/lib/db/actions.mongo'
 import { Button } from '@/components/ui/button'
 import { PromptForm } from '@/components/(chat)/chat-prompt'
 import { ButtonScrollToBottom } from '@/components/(chat)/button-scroll-to-bottom'
 import { IconShare } from '@/components/ui/icons'
 import { FooterText } from '@/components/(chat)/chat-footer'
-import { ChatShareDialog } from '@/components/(chat)/chat-share-dialog'
 import { useAIState, useActions, useUIState } from 'ai/rsc'
 import type { AI } from '@/lib/chat/actions'
 import { nanoid } from 'nanoid'
@@ -114,7 +113,7 @@ export function ChatPanel({
                     <IconShare className="mr-2" />
                     Share
                   </Button>
-                  <ChatShareDialog
+                  {/* <ChatShareDialog
                     open={shareDialogOpen}
                     onOpenChange={setShareDialogOpen}
                     onCopy={() => setShareDialogOpen(false)}
@@ -124,7 +123,7 @@ export function ChatPanel({
                       title,
                       messages: aiState.messages
                     }}
-                  />
+                  /> */}
                 </>
               ) : null}
             </div>

@@ -4,6 +4,7 @@ import {
   CoreAssistantMessage,
   CoreSystemMessage
 } from 'ai'
+import { mongo } from 'mongoose'
 
 export type Message = CoreMessage & {
   id: string
@@ -19,11 +20,11 @@ export type NaturalMessage = (
 }
 
 export interface Chat extends Record<string, any> {
-  _id?: any
   id: string
-  title: string
   userId: any
-  path: string
+  createdAt?: Date
+  updatedAt?: Date
+  title: string
   messages: Message[]
   sharePath?: string
 }

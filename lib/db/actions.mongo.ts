@@ -8,7 +8,6 @@ import Chats from '@/lib/db/models/chat.model'
 import { auth } from '@/auth'
 import { type Chat } from '@/lib/types'
 import { connectToDB } from '@/lib/db/mongoose'
-import mongoose from 'mongoose'
 import { ObjectId } from 'mongodb'
 
 connectToDB()
@@ -30,13 +29,13 @@ export async function getChat(id: string, userId: string) {
   const chat = await Chats.findOne({
     id,
     userId: new ObjectId(userId)
-  })
+  }).lean<Chat>()
 
   if (!chat) {
     return null
   }
 
-  return chat as Chat
+  return chat
 }
 
 export async function getChats(userId?: string | null) {
@@ -45,7 +44,21 @@ export async function getChats(userId?: string | null) {
   }
 
   try {
-    const chats: Chat[] = await Chats.find({ userId: new ObjectId(userId) })
+    const chats = await Chats.aggregate([
+      { $match: { userId: new ObjectId(userId) } },
+      {
+        $project: {
+          _id: 0,
+          id: 1,
+          title: 1,
+          userId: { $toString: '$userId' },
+          path: 1,
+          updatedAt: 1,
+          sharePath: 1,
+          messagesLength: { $size: '$messages' }
+        }
+      }
+    ])
 
     return chats
   } catch (error) {
@@ -95,7 +108,7 @@ export async function clearChats() {
 
 //* Share Chat
 export async function getSharedChat(id: string) {
-  const chat = await Chats.findOne({ id })
+  const chat = await Chats.findOne({ id }).lean<Chat>()
 
   if (!chat || !chat.sharePath) {
     return null
@@ -104,7 +117,7 @@ export async function getSharedChat(id: string) {
   return chat
 }
 
-export async function shareChat(id: string) {
+export async function shareChat(id: string, path: string) {
   const session = await auth()
 
   if (!session?.user?.id) {
@@ -113,22 +126,23 @@ export async function shareChat(id: string) {
     }
   }
 
-  const chat = await Chats.findOne({
-    id,
-    userId: new ObjectId(session?.user?.id)
-  })
+  const chat = await Chats.findOneAndUpdate(
+    {
+      id,
+      userId: new ObjectId(session?.user?.id)
+    },
+    {
+      $set: { sharePath: path }
+    },
+    {
+      new: true
+    }
+  )
 
-  if (!chat) {
+  if (!chat)
     return {
       error: 'Something went wrong'
     }
-  }
-
-  chat.sharePath = `/share/${chat.id}`
-
-  await chat.save()
-
-  return chat
 }
 
 //* Others
@@ -137,7 +151,7 @@ export async function refreshHistory(path: string) {
 }
 
 export async function getMissingKeys() {
-  const keysRequired = ['API_KEY']
+  const keysRequired = ['GROQ_API_KEY', 'OPENAI_API_KEY', 'MONGODB_URI']
   return keysRequired
     .map(key => (process.env[key] ? '' : key))
     .filter(key => key !== '')
