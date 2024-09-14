@@ -10,7 +10,7 @@ import Textarea from 'react-textarea-autosize'
 import { useState } from 'react'
 import { useUIState, useActions } from 'ai/rsc'
 import { useEnterSubmit } from '@/lib/hooks/use-enter-submit'
-import { AI, UIState } from '@/lib/chat/actions'
+import type { AI, UIState } from '@/lib/chat'
 import { BotMessage, UserMessage } from './message'
 
 interface CopyActionProps {

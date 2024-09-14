@@ -21,7 +21,12 @@ export function UserMessage({
   const [isEditing, setIsEditing] = useState(false)
 
   return (
-    <div className={cn('group relative flex items-start md:-ml-12', className)}>
+    <div
+      className={cn(
+        'group/message relative flex items-start md:-ml-12',
+        className
+      )}
+    >
       <div className="flex size-[25px] shrink-0 select-none items-center justify-center rounded-md border bg-background shadow-sm">
         <IconUser />
       </div>
@@ -32,7 +37,9 @@ export function UserMessage({
           (message.content as string)
         )}
 
-        <div className="flex absolute bottom-0 right-0 transition-opacity group-hover:opacity-100 md:opacity-0">
+        <div
+          className={`flex absolute ${isEditing ? 'bottom-0' : '-bottom-3.5'} right-0 transition-opacity group-hover/message:opacity-100 md:opacity-0`}
+        >
           <Copy content={message.content as string} />
           <Button
             onClick={() => setIsEditing(!isEditing)}
@@ -60,7 +67,12 @@ export function BotMessage({
   const [isEditing, setIsEditing] = useState(false)
 
   return (
-    <div className={cn('group relative flex items-start md:-ml-12', className)}>
+    <div
+      className={cn(
+        'group/message relative flex items-start md:-ml-12',
+        className
+      )}
+    >
       <div className="flex size-[24px] shrink-0 select-none items-center justify-center rounded-md border bg-primary text-primary-foreground shadow-sm">
         <IconOpenAI />
       </div>
@@ -76,7 +88,9 @@ export function BotMessage({
             {text}
           </MemoizedReactMarkdown>
         )}
-        <div className="flex absolute bottom-0 right-0 transition-opacity group-hover:opacity-100 md:opacity-0">
+        <div
+          className={`flex absolute ${isEditing ? 'bottom-0' : '-bottom-3.5'} right-0 transition-opacity group-hover/message:opacity-100 md:opacity-0`}
+        >
           <Copy content={text} />
           <Button
             onClick={() => setIsEditing(!isEditing)}

@@ -6,7 +6,7 @@ import Textarea from 'react-textarea-autosize'
 import { useActions, useUIState } from 'ai/rsc'
 
 import { UserMessage } from '../utils/message'
-import { type AI } from '@/lib/chat/actions'
+import type { AI } from '@/lib/chat'
 import { Button } from '@/components/ui/button'
 import { IconArrowElbow, IconPlus } from '@/components/ui/icons'
 import {
@@ -60,7 +60,6 @@ export function PromptForm({
           }
         ])
 
-        // Submit and get response message
         const responseMessage = await submitUserMessage(value, messageId)
         setMessages(currentMessages => [...currentMessages, responseMessage])
       }}

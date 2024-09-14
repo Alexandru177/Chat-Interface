@@ -1,5 +1,5 @@
 import { Separator } from '@/components/ui/separator'
-import { UIState } from '@/lib/chat/actions'
+import type { UIState } from '@/lib/chat'
 import { Session } from '@/lib/types'
 import Link from 'next/link'
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons'
@@ -16,11 +16,11 @@ export function ChatList({ messages, session, isShared }: ChatList) {
   }
 
   return (
-    <div className="relative mx-auto max-w-2xl px-4">
+    <div className="relative mx-auto max-w-2xl px-4 selection:bg-rare-muted">
       {!isShared && !session ? (
         <>
-          <div className="group relative mb-4 flex items-start md:-ml-12">
-            <div className="bg-background flex size-[25px] shrink-0 select-none items-center justify-center rounded-md border shadow-sm">
+          <div className="relative mb-4 flex items-start md:-ml-12">
+            <div className="bg-card flex size-[25px] shrink-0 select-none items-center justify-center rounded-md border shadow-sm">
               <ExclamationTriangleIcon />
             </div>
             <div className="ml-4 flex-1 space-y-2 overflow-hidden px-1">

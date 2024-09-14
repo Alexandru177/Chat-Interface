@@ -2,6 +2,8 @@ import { memo } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
+import rehypeKatex from 'rehype-katex'
+import 'katex/dist/katex.min.css'
 import { CodeBlock } from './codeblock'
 import { cn } from '@/lib/utils'
 
@@ -18,28 +20,20 @@ export const MemoizedReactMarkdown = memo<MemoizedReactMarkdownProps>(
         className
       )}
       remarkPlugins={[remarkGfm, remarkMath]}
+      rehypePlugins={[rehypeKatex]}
       components={{
-        p({ children }) {
+        p({ children }: any) {
           return <p className="mb-2 last:mb-0">{children}</p>
         },
-        code({ node, className, children, ...props }) {
-          if (children.length) {
-            if (children[0] == '▍') {
-              return (
-                <span className="mt-1 animate-pulse cursor-default">▍</span>
-              )
-            }
-
-            children[0] = (children[0] as string).replace('`▍`', '▍')
-          }
-
+        code({ node, className, children, ...props }: any) {
           const match = /language-(\w+)/.exec(className || '')
 
           return match ? (
             <CodeBlock
               key={Math.random()}
-              language={match[1] || ''}
-              value={String(children).replace(/\n$/, '')}
+              language={match[1]}
+              code={String(children).replace(/\n$/, '')}
+              highlight={[1, 2, 7, 9, 10, 13, 14, 15]}
               {...props}
             />
           ) : (
@@ -47,7 +41,7 @@ export const MemoizedReactMarkdown = memo<MemoizedReactMarkdownProps>(
               {...props}
               className={cn(
                 className,
-                'px-1 py-0.5 rounded-md text-sm bg-secondary text-amber-300 dark:text-cyan-500 font-mono'
+                'px-1 py-0.5 text-rare bg-muted font-mono text-sm rounded-md'
               )}
             >
               {children}

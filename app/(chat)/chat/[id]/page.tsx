@@ -4,8 +4,8 @@ import { notFound, redirect } from 'next/navigation'
 import { auth } from '@/auth'
 import { getChat, getMissingKeys } from '@/lib/db/actions.mongo'
 import { Chat } from '@/components/(chat)/chat'
-import { AI } from '@/lib/chat/actions'
-import { Session, Message } from '@/lib/types'
+import { AI } from '@/lib/chat'
+import { Session } from '@/lib/types'
 
 export interface ChatPageProps {
   params: {

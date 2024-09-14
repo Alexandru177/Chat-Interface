@@ -33,7 +33,7 @@ function groupChatsByDate(chats: Chat[]) {
 
   const grouped = new Map<string, Chat[]>()
   chats
-    .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
+    .sort((a, b) => b.updatedAt!.getTime() - a.updatedAt!.getTime())
     .forEach(chat => {
       const date = chat.updatedAt!
       const category = getCategory(date, new Date())

@@ -5,19 +5,9 @@ import { cn } from '@/lib/utils'
 import { auth } from '@/auth'
 import { Session } from '@/lib/types'
 import { Button, buttonVariants } from '@/components/ui/button'
-import {
-  IconGitHub,
-  IconNextChat,
-  IconSeparator,
-  IconVercel
-} from '@/components/ui/icons'
+import { IconGitHub, IconSeparator } from '@/components/ui/icons'
 import { UserMenu } from '@/components/user-menu'
-import {
-  Sidebar,
-  SidebarDesktop,
-  SidebarMobile,
-  SidebarToggle
-} from '@/components/(sidebar)/sidebar'
+import { SidebarMobile, SidebarToggle } from '@/components/(sidebar)/sidebar'
 import { History } from '@/components/(sidebar)/sidebar-history'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 
@@ -25,19 +15,10 @@ async function UserOrLogin() {
   const session = (await auth()) as Session
   return (
     <>
-      {session?.user ? (
-        <>
-          <SidebarMobile>
-            <History userId={session.user.id} />
-          </SidebarMobile>
-          <SidebarToggle />
-        </>
-      ) : (
-        <Link href="/new" rel="nofollow">
-          <IconNextChat className="size-6 mr-2 dark:hidden" inverted />
-          <IconNextChat className="hidden size-6 mr-2 dark:block" />
-        </Link>
-      )}
+      <SidebarMobile>
+        <History userId={session?.user?.id} />
+      </SidebarMobile>
+      <SidebarToggle />
       <div className="flex items-center">
         <IconSeparator className="size-6 text-muted-foreground/50" />
         {session?.user ? (

@@ -35,7 +35,7 @@ export function SidebarItem({ index, chat, children }: SidebarItemProps) {
 
   return (
     <motion.div
-      className="group/item relative h-10"
+      className="group/item relative"
       variants={{
         initial: {
           height: 0,
@@ -53,7 +53,7 @@ export function SidebarItem({ index, chat, children }: SidebarItemProps) {
         ease: 'easeIn'
       }}
     >
-      <div className="absolute left-2 top-1 flex size-6 items-center justify-center">
+      <div className="absolute left-2 top-0.5 flex size-6 items-center justify-center">
         {chat.sharePath ? (
           <Tooltip delayDuration={1000}>
             <TooltipTrigger tabIndex={-1}>
@@ -69,7 +69,7 @@ export function SidebarItem({ index, chat, children }: SidebarItemProps) {
         href={`/chat/${chat.id}`}
         className={cn(
           buttonVariants({ variant: 'ghost' }),
-          'group w-full px-8 transition-colors duration-200',
+          'group w-full px-8 transition-colors duration-200 h-8 mb-1',
           isActive && ' pr-16 font-semibold bg-zinc-200 dark:bg-zinc-700'
         )}
       >
@@ -110,13 +110,13 @@ export function SidebarItem({ index, chat, children }: SidebarItemProps) {
                 </motion.span>
               ))
             ) : (
-              <span>{chat.title}</span>
+              <span className="text-sm font-medium">{chat.title}</span>
             )}
           </span>
         </div>
       </Link>
       <div
-        className={`absolute right-2 top-1 transition-opacity duration-300 ${isActive || 'opacity-0 group-hover/item:opacity-100'}`}
+        className={`absolute right-2 top-0.5 transition-opacity duration-300 ${isActive || 'opacity-0 group-hover/item:opacity-100'}`}
       >
         {children}
       </div>

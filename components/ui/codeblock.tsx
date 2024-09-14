@@ -1,19 +1,23 @@
-// Inspired by Chatbot-UI and modified to fit the needs of this project
-// @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Markdown/CodeBlock.tsx
-
 'use client'
 
 import { FC, memo } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { coldarkDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
+import {
+  coldarkDark,
+  coldarkCold
+} from 'react-syntax-highlighter/dist/cjs/styles/prism'
+import { nanoid } from 'lib/utils'
+import { useTheme } from 'next-themes'
 
 import { useCopyToClipboard } from '@/lib/hooks/use-copy-to-clipboard'
 import { IconCheck, IconCopy, IconDownload } from '@/components/ui/icons'
 import { Button } from '@/components/ui/button'
 
 interface Props {
-  language: string
-  value: string
+  filename?: string
+  language?: string
+  code: string
+  highlight?: number[]
 }
 
 interface languageMap {
@@ -34,6 +38,8 @@ export const programmingLanguages: languageMap = {
   'objective-c': '.m',
   kotlin: '.kt',
   typescript: '.ts',
+  jsx: '.jsx',
+  tsx: '.tsx',
   go: '.go',
   perl: '.pl',
   rust: '.rs',
@@ -44,38 +50,23 @@ export const programmingLanguages: languageMap = {
   sql: '.sql',
   html: '.html',
   css: '.css'
-  // add more file extensions here, make sure the key is same as language prop in CodeBlock.tsx component
 }
 
-export const generateRandomString = (length: number, lowercase = false) => {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXY3456789' // excluding similar looking characters like Z, 2, I, 1, O, 0
-  let result = ''
-  for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length))
-  }
-  return lowercase ? result.toLowerCase() : result
-}
-
-const CodeBlock: FC<Props> = memo(({ language, value }) => {
+const CodeBlock: FC<Props> = memo(({ filename, language, code, highlight }) => {
   const { isCopied, copyToClipboard } = useCopyToClipboard({ timeout: 2000 })
+  const { theme } = useTheme()
 
   const downloadAsFile = () => {
     if (typeof window === 'undefined') {
       return
     }
-    const fileExtension = programmingLanguages[language] || '.file'
-    const suggestedFileName = `file-${generateRandomString(
-      3,
-      true
-    )}${fileExtension}`
-    const fileName = window.prompt('Enter file name' || '', suggestedFileName)
+    const fileExtension = programmingLanguages[language!] || '.file'
+    const suggestedFileName = `file-${nanoid()}${fileExtension}`
+    const fileName = window.prompt('Save as', suggestedFileName)
 
-    if (!fileName) {
-      // User pressed cancel on prompt.
-      return
-    }
+    if (!fileName) return
 
-    const blob = new Blob([value], { type: 'text/plain' })
+    const blob = new Blob([code], { type: 'text/plain' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.download = fileName
@@ -89,46 +80,58 @@ const CodeBlock: FC<Props> = memo(({ language, value }) => {
 
   const onCopy = () => {
     if (isCopied) return
-    copyToClipboard(value)
+    copyToClipboard(code)
   }
 
   return (
-    <div className="relative w-full font-sans codeblock bg-zinc-950">
-      <div className="flex items-center justify-between w-full px-6 py-2 pr-4 bg-zinc-800 text-zinc-100">
-        <span className="text-xs lowercase">{language}</span>
-        <div className="flex items-center space-x-1">
-          <Button
-            variant="ghost"
-            className="hover:hover:bg-primary-foreground focus-visible:ring-1 focus-visible:ring-slate-700 focus-visible:ring-offset-0"
-            onClick={downloadAsFile}
-            size="icon"
-          >
-            <IconDownload />
-            <span className="sr-only">Download</span>
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-xs hover:bg-primary-foreground focus-visible:ring-1 focus-visible:ring-slate-700 focus-visible:ring-offset-0"
-            onClick={onCopy}
-          >
+    <div className="relative w-full font-sans border border-accent rounded-lg card-shadow">
+      {language ? (
+        <div className="flex items-center justify-between w-full p-2 bg-card text-card-foreground border-accent border-b rounded-t-lg">
+          <h6 className="ml-2 text-md font-light lowercase">
+            {filename}.{language}
+          </h6>
+          <div className="flex items-center space-x-1">
+            <Button variant="ghost" onClick={downloadAsFile} size="icon">
+              <IconDownload />
+              <span className="sr-only">Download</span>
+            </Button>
+            <Button variant="ghost" size="icon" onClick={onCopy}>
+              {isCopied ? <IconCheck /> : <IconCopy />}
+              <span className="sr-only">Copy code</span>
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="absolute top-2 right-2">
+          <Button variant="ghost" size="icon" onClick={onCopy}>
             {isCopied ? <IconCheck /> : <IconCopy />}
             <span className="sr-only">Copy code</span>
           </Button>
         </div>
-      </div>
+      )}
       <SyntaxHighlighter
         language={language}
-        style={coldarkDark}
+        style={theme === 'dark' ? coldarkDark : coldarkCold}
         PreTag="div"
-        showLineNumbers
+        showLineNumbers={language ? true : false}
+        wrapLines
+        lineProps={line => {
+          let style: any = { display: 'block' }
+          if (highlight?.includes(line)) {
+            style.backgroundColor = theme === 'dark' ? '#0F2F57' : '#E0F0FF'
+            style.width = '100%'
+            style.borderLeft = '3px solid #52A8FF'
+          }
+          return { style }
+        }}
         customStyle={{
-          margin: 0,
           width: '100%',
-          background: 'transparent',
-          padding: '1.5rem 1rem'
+          margin: 0,
+          backgroundColor: theme === 'dark' ? 'black' : 'none',
+          padding: '1rem 0'
         }}
         lineNumberStyle={{
+          paddingLeft: '1.5rem',
           userSelect: 'none'
         }}
         codeTagProps={{
@@ -138,7 +141,7 @@ const CodeBlock: FC<Props> = memo(({ language, value }) => {
           }
         }}
       >
-        {value}
+        {code}
       </SyntaxHighlighter>
     </div>
   )

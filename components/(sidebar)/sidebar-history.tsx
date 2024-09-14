@@ -1,7 +1,6 @@
-import * as React from 'react'
-
 import Link from 'next/link'
 
+import { Suspense, cache } from 'react'
 import { cn, sleep } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/button'
 import { IconPlus } from '@/components/ui/icons'
@@ -11,8 +10,6 @@ import { SidebarItems } from '@/components/(sidebar)/sidebar-items'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Chat } from '@/lib/types'
-import { cache } from 'react'
-import { Separator } from '@radix-ui/react-dropdown-menu'
 
 interface SidebarListProps {
   userId?: string
@@ -23,7 +20,7 @@ const loadChats = cache(async (userId?: string) => await getChats(userId))
 
 export async function SidebarList({ userId }: SidebarListProps) {
   const chats: Chat[] = await loadChats(userId)
-  await sleep(2000)
+  await sleep(2000) //*dev
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
@@ -68,7 +65,7 @@ export async function History({ userId }: SidebarHistoryProps) {
           New Chat
         </Link>
       </div>
-      <React.Suspense
+      <Suspense
         fallback={
           <div className="flex flex-col flex-1 mt-4 px-4 space-y-4 overflow-auto">
             <Skeleton className="h-4 w-[150px]" />
@@ -87,7 +84,7 @@ export async function History({ userId }: SidebarHistoryProps) {
         }
       >
         <SidebarList userId={userId} />
-      </React.Suspense>
+      </Suspense>
     </div>
   )
 }
