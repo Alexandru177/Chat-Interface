@@ -2,7 +2,13 @@ import { clsx, type ClassValue } from 'clsx'
 import { customAlphabet } from 'nanoid'
 import { twMerge } from 'tailwind-merge'
 
-export function cn(...inputs: ClassValue[]) {
+/**
+ * Combines multiple class names into a single string, resolving conflicts.
+ * Latter classes have priority.
+ * @param {...ClassValue[]} inputs - An array of class names
+ * @returns {string} - A single string of combined class names.
+ */
+export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs))
 }
 
@@ -45,6 +51,16 @@ export const formatNumber = (value: number) =>
     style: 'currency',
     currency: 'USD'
   }).format(value)
+
+export const formatKey = (key: string) =>
+  key
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/\b\w/g, str => str.toUpperCase())
+
+export const constrainValue = (
+  value: number,
+  range: [number, number]
+): number => Math.max(range[0], Math.min(value, range[1]))
 
 export const runAsyncFnWithoutBlocking = (
   fn: (...args: any) => Promise<any>

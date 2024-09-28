@@ -3,34 +3,21 @@
 import * as React from 'react'
 
 import { Button } from '@/components/ui/button'
-import { PromptForm } from '@/components/(chat)/chat-prompt'
+import { PromptForm } from '@/components/(chat)/chat-form'
 import { ButtonScrollToBottom } from '@/components/(chat)/button-scroll-to-bottom'
-import { IconPlay, IconRefresh } from '@/components/ui/icons'
+import { IconRefresh } from '@/components/ui/icons'
 import { FooterText } from '@/components/(chat)/chat-footer'
 import { useAIState, useActions, useUIState } from 'ai/rsc'
 import type { AI } from '@/lib/chat'
 import { nanoid } from 'lib/utils'
 import { UserMessage } from '@/components/utils/message'
-import type { Message } from '@/lib/types'
-
 export interface ChatPanelProps {
   id?: string
-  title?: string
-  input: string
-  setInput: (value: string) => void
   isAtBottom: boolean
   scrollToBottom: () => void
 }
 
-export function ChatPanel({
-  id,
-  title,
-  input,
-  setInput,
-  isAtBottom,
-  scrollToBottom
-}: ChatPanelProps) {
-  const [isLoading, setIsLoading] = React.useState(false)
+export function ChatPanel({ id, isAtBottom, scrollToBottom }: ChatPanelProps) {
   const [aiState] = useAIState<typeof AI>()
   const [messages, setMessages] = useUIState<typeof AI>()
   const { submitUserMessage } = useActions<typeof AI>()
@@ -104,7 +91,6 @@ export function ChatPanel({
               {id ? (
                 <Button
                   variant="outline"
-                  disabled={isLoading}
                   onClick={async () => {
                     let lastId: string = ''
                     for (let i = aiState.messages.length - 1; i >= 0; i--)
@@ -142,7 +128,7 @@ export function ChatPanel({
           </div>
         ) : null}
         <div className="space-y-4 border-t bg-card px-4 py-2 shadow-lg sm:rounded-t-xl sm:border md:py-4">
-          <PromptForm input={input} setInput={setInput} />
+          <PromptForm />
           <FooterText className="hidden sm:block" />
         </div>
       </div>

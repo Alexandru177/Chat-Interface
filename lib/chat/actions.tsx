@@ -2,7 +2,6 @@ import 'server-only'
 
 import { getMutableAIState, streamUI, createStreamableValue } from 'ai/rsc'
 import { AI, UIState } from '.'
-import { createOpenAI } from '@ai-sdk/openai'
 
 import { BotMessage, SpinnerMessage, SystemMessage } from '@/components/utils'
 
@@ -10,16 +9,7 @@ import { z } from 'zod'
 import { nanoid } from '@/lib/utils'
 import { Message, NaturalMessage } from '@/lib/types'
 import { CoreMessage } from 'ai'
-
-const lmstudio = createOpenAI({
-  apiKey: process.env.API_KEY ?? '',
-  baseURL: 'http://localhost:1234/v1'
-})
-
-const groq = createOpenAI({
-  apiKey: process.env.GROQ_API_KEY,
-  baseURL: 'https://api.groq.com/openai/v1'
-})
+import { getModel } from './models'
 
 export async function submitUserMessage(
   content: string | null,
@@ -45,17 +35,19 @@ export async function submitUserMessage(
   let textStream: ReturnType<typeof createStreamableValue<string>>
   let textNode: undefined | React.ReactNode
   let newId = nanoid()
+  const model = aiState.get().model
 
   const result = await streamUI({
-    model: groq('llama3-8b-8192'),
-    initial: <SpinnerMessage />,
-    system: `You are a helpful assistant`,
+    model: getModel(model),
+    system: model.prompt,
+    ...model.options,
     messages: [
       ...aiState.get().messages.map(message => ({
         role: message.role,
         content: message.content
       }))
     ] as CoreMessage[],
+    initial: <SpinnerMessage />,
     text: ({ content, done, delta }) => {
       if (!textStream) {
         textStream = createStreamableValue('')

@@ -94,6 +94,11 @@ code::after {
   @apply rounded-full bg-muted hover:bg-secondary border-[1px] border-transparent border-solid bg-clip-padding;
 }
 
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  @apply appearance-none;
+}
+
 .chatbg {
   .light & {
     @apply bg-muted/50 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-[size:20px_20px];

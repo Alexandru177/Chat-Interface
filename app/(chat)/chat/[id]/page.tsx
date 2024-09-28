@@ -1,5 +1,5 @@
 import { type Metadata } from 'next'
-import { notFound, redirect } from 'next/navigation'
+import { redirect } from 'next/navigation'
 
 import { auth } from '@/auth'
 import { getChat, getMissingKeys } from '@/lib/db/actions.mongo'
@@ -42,7 +42,13 @@ export default async function ChatPage({ params }: ChatPageProps) {
   if (!chat) redirect('/')
 
   return (
-    <AI initialAIState={{ chatId: chat.id, messages: chat.messages }}>
+    <AI
+      initialAIState={{
+        id: chat.id,
+        model: chat.model,
+        messages: chat.messages
+      }}
+    >
       <Chat
         id={chat.id}
         session={session}

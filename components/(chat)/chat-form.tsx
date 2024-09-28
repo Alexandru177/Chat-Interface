@@ -18,18 +18,13 @@ import { useEnterSubmit } from '@/lib/hooks/use-enter-submit'
 import { nanoid } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 
-export function PromptForm({
-  input,
-  setInput
-}: {
-  input: string
-  setInput: (value: string) => void
-}) {
+export function PromptForm() {
   const router = useRouter()
   const { formRef, onKeyDown } = useEnterSubmit()
   const inputRef = React.useRef<HTMLTextAreaElement>(null)
   const { submitUserMessage } = useActions()
   const [_, setMessages] = useUIState<typeof AI>()
+  const [input, setInput] = React.useState('')
 
   return (
     <form
@@ -46,7 +41,6 @@ export function PromptForm({
         setInput('')
         if (!value) return
 
-        // Optimistically add user message UI
         const messageId = nanoid()
         setMessages(currentMessages => [
           ...currentMessages,

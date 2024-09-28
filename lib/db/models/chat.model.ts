@@ -15,23 +15,24 @@ const messageSchema = new Schema<Message>(
 const chatSchema = new Schema<Chat>(
   {
     id: { type: String },
-
-    title: { type: String, required: true },
-    messages: [messageSchema], // Array of Message documents
-
-    path: { type: String },
-    sharePath: { type: String },
-
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'Users', // the name of the model you're referencing
+      ref: 'Users',
       required: true
-    }
+    },
+    model: {
+      id: { type: String, required: true },
+      provider: { type: String },
+      prompt: { type: String },
+      options: { type: Map, of: Schema.Types.Mixed }
+    },
+    title: { type: String, required: true },
+    messages: [messageSchema], // Array of Message documents
+    sharePath: { type: String }
   },
   { timestamps: true }
 )
 
-// Create the Chat model
 const Chats = models.Chats || model<Chat>('Chats', chatSchema)
 
 export default Chats

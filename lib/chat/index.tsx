@@ -4,12 +4,14 @@ import { createAI, getAIState } from 'ai/rsc'
 import { UserMessage, BotMessage, SystemMessage } from '@/components/utils'
 
 import { nanoid } from '@/lib/utils'
-import { Chat, Message, NaturalMessage } from '@/lib/types'
+import type { Chat, Message, Model } from '@/lib/types'
 import { auth } from '@/auth'
 import { saveChat } from '@/lib/db/actions.mongo'
+import { model } from 'mongoose'
 
 export type AIState = {
-  chatId: string
+  id: string
+  model: Model
   messages: Message[]
 }
 
@@ -20,46 +22,46 @@ export type UIState = {
 
 export type Actions = typeof actions
 
-//* Context
+//* AI client-server Context
 export const AI = createAI<AIState, UIState[], Actions>({
   actions,
   initialUIState: [],
-  initialAIState: { chatId: nanoid(), messages: [] },
+  initialAIState: {
+    id: nanoid(),
+    model: { id: '', options: {} },
+    messages: []
+  },
   onGetUIState: async () => {
     'use server'
     const session = await auth()
 
-    if (session && session.user) {
-      const aiState = getAIState()
+    if (!session?.user) return
 
-      if (aiState) {
-        const uiState = getUIStateFromAIState(aiState)
-        return uiState
-      }
-    }
-  },
+    const aiState = getAIState()
+    if (aiState) return getUIStateFromAIState(aiState)
+  }, //cb for setMessages of AI state.
   onSetAIState: async ({ state }) => {
-    //cb for setMessages of AI state.
     'use server'
     const session = await auth()
 
-    if (session && session.user) {
-      const { chatId, messages } = state
+    if (!session?.user) return
 
-      const userId = session.user.id
+    const { id, messages, model } = state
 
-      const firstMessageContent = messages[0].content as string
-      const title = firstMessageContent.substring(0, 100)
+    const userId = session.user.id
 
-      const chat: Chat = {
-        id: chatId,
-        title,
-        userId,
-        messages
-      }
+    const firstMessageContent = messages[0].content as string
+    const title = firstMessageContent.substring(0, 100)
 
-      await saveChat(chat)
+    const chat: Chat = {
+      id,
+      userId,
+      model,
+      title,
+      messages
     }
+
+    await saveChat(chat)
   }
 })
 

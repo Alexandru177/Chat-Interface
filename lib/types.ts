@@ -4,7 +4,6 @@ import {
   CoreAssistantMessage,
   CoreSystemMessage
 } from 'ai'
-import { mongo } from 'mongoose'
 
 export type Message = CoreMessage & {
   id: string
@@ -19,9 +18,19 @@ export type NaturalMessage = (
   id: string
 }
 
+export interface Model {
+  id: string
+  provider?: string
+  prompt?: string
+  options: Record<string, any>
+  apiKey?: string
+  apiURL?: string
+}
+
 export interface Chat extends Record<string, any> {
   id: string
   userId: any
+  model: Model
   createdAt?: Date
   updatedAt?: Date
   title: string

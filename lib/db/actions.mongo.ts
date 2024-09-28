@@ -16,12 +16,10 @@ connectToDB()
 export async function saveChat(chat: Chat) {
   const session = await auth()
 
-  if (session && session.user) {
+  if (session && session.user)
     await Chats.findOneAndUpdate({ id: chat.id }, chat, {
       upsert: true
     })
-  }
-  return
 }
 
 //* Read
@@ -31,9 +29,7 @@ export async function getChat(id: string, userId: string) {
     userId: new ObjectId(userId)
   }).lean<Chat>()
 
-  if (!chat) {
-    return null
-  }
+  if (!chat) return null
 
   return chat
 }
@@ -81,11 +77,10 @@ export async function removeChat({ id, path }: { id: string; path: string }) {
     userId: new ObjectId(session?.user?.id)
   })
 
-  if (!chat) {
+  if (!chat)
     return {
       error: 'Unauthorized'
     }
-  }
 
   revalidatePath('/')
   return revalidatePath(path)
@@ -94,11 +89,10 @@ export async function removeChat({ id, path }: { id: string; path: string }) {
 export async function clearChats() {
   const session = await auth()
 
-  if (!session?.user?.id) {
+  if (!session?.user?.id)
     return {
       error: 'Unauthorized'
     }
-  }
 
   await Chats.deleteMany({ userId: new ObjectId(session.user.id) })
 
@@ -110,9 +104,7 @@ export async function clearChats() {
 export async function getSharedChat(id: string) {
   const chat = await Chats.findOne({ id }).lean<Chat>()
 
-  if (!chat || !chat.sharePath) {
-    return null
-  }
+  if (!chat || !chat.sharePath) return null
 
   return chat
 }
@@ -120,11 +112,10 @@ export async function getSharedChat(id: string) {
 export async function shareChat(id: string, path: string) {
   const session = await auth()
 
-  if (!session?.user?.id) {
+  if (!session?.user?.id)
     return {
       error: 'Unauthorized'
     }
-  }
 
   const chat = await Chats.findOneAndUpdate(
     {
